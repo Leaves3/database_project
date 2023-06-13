@@ -1,16 +1,19 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div id="app">
+    <el-container v-if="$route.meta.keepAlive">
+      <el-header>
+        <keep-alive>
+          <head></head>
+        </keep-alive>
+      </el-header>
+    </el-container>
+    <router-view v-if="!$route.meta.keepAlive"></router-view>
+  </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-
 export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
+  name: 'App'
 }
 </script>
 
@@ -22,5 +25,9 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+.router-view {
+  width: 100%;
+  height: 100%;
 }
 </style>
