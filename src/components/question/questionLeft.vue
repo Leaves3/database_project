@@ -8,12 +8,14 @@
         <el-button type="primary" @click="editQuestion" class="editBtn">编辑</el-button>
       </el-header>
       <div class="subDescribe">
-        难度:<el-tag :style="activation(questionInfoForm.level)" class="levelDescribe">{{questionInfoForm.level}}</el-tag>
+        <div>
+          创建时间:{{questionInfoForm.addTime}}
+        </div>
+        <div style="margin-left: 1.7vw">
+          难度: <el-tag :style="activation(questionInfoForm.level)" class="levelDescribe">{{questionInfoForm.level}}</el-tag>
+        </div>
       </div>
       <div class="subDescribe">
-        <div style="font-style: italic">
-          来源：
-        </div>
         <div class="companyDescribe">
           公司: <span style="color: #6187fa">{{questionInfoForm.company ? questionInfoForm.company : "未知"}} </span>
         </div>
@@ -44,6 +46,48 @@
       <el-tag class="relationTag" v-if="questionInfoForm.position !== ''" style="background-color: rgba(7,133,91,0.8);color:white">{{questionInfoForm.position}}</el-tag>
     </el-container>
   </div>
+  <el-dialog title="编辑题目信息" v-model="this.editShow" :before-close="beforeClose" style="height:80vh;overflow:scroll">
+    <el-form ref="editForm" :model="questionEditForm" :rules="rules" label-width="10vw">
+      <el-form-item label="题目名称" prop="name">
+        <el-input v-model="questionEditForm.name"></el-input>
+      </el-form-item>
+      <el-form-item label="题目描述" prop="describe">
+        <el-input type="textarea" v-model="questionEditForm.describe" resize="none" :autosize="{ minRows: 15, maxRows: 15 }"
+        style="white-space: pre-line; height:40vh;text-align: left;"></el-input>
+      </el-form-item>
+      <el-form-item label="题目类型" prop="type">
+        <el-select v-model="questionEditForm.type">
+          <el-option v-for="item in typeList"  :key="item.id" :value="item.name"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="题目难度" prop="level">
+        <el-select v-model="questionEditForm.level">
+          <el-option v-for="item in levelList"  :key="item.id" :value="item.name"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="题目类别" prop="category">
+        <el-select v-model="questionEditForm.category">
+          <el-option v-for="item in categoryList"  :key="item.id" :value="item.name"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="公司" prop="company">
+        <el-select v-model="questionEditForm.company" @change="SelectCompany">
+          <el-option v-for="item in companyList"  :key="item.id" :value="item.name"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="部门" prop="department">
+        <el-select v-if="this.isCompanySelected" v-model="questionEditForm.department">
+          <el-option v-for="item in departmentList"  :key="item.id" :value="item.name"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="适应岗位" prop="position">
+        <el-select v-model="questionEditForm.position">
+          <el-option v-for="item in positionList"  :key="item.id" :value="item.name"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-button type="primary" @click="submitEdit" style="left: -4vw;height:auto; position:relative">提交</el-button>
+    </el-form>
+  </el-dialog>
 </template>
 
 <script>
@@ -51,9 +95,12 @@ export default {
   name: "questionLeft",
   data(){
     return{
+      isCompanySelected:true,
+      editShow:false,
       userToken:localStorage.getItem("token"),
       dialogShow:false,
       questionId:localStorage.getItem("questionId"),
+      questionEditForm:{},
       questionInfoForm:{
         id:0,
         name:"B+树查询",
@@ -94,12 +141,105 @@ export default {
             "s 由英文字母、数字、符号和空格组成\n",
         code:"",
         note:"",
-        addTime:""
+        addTime:"2023-06-17 06:33"
+      },
+      typeList:[{
+        id:0,
+        name:"算法题"
+      },{
+        id: 1,
+        name: "文字题"
+      }],
+      levelList:[{
+        id:0,
+        name:"简单"
+      },{
+        id:1,
+        name:"中等"
+      },{
+        id:2,
+        name: "困难"
+      }],
+      categoryList:[{
+        id:0,
+        name:"数组"
+      },
+        {
+          id:1,
+          name:"排序"
+        },{
+          id:2,
+          name:"操作系统"
+        }],
+      editTimeList:[{
+        id:0,
+        name:"近一周"
+      },{
+        id:1,
+        name: "近一个月"
+      },{
+        id:2,
+        name:"近半年"
+      }],
+      finishList:[{
+        id:0,
+        name:"已完成"
+      },{
+        id:1,
+        name: "未完成"
+      }],
+      companyList:[{
+        id:0,
+        name:"普华永道"
+      },{
+        id:1,
+        name:"字节跳动"
+      },{
+        id:2,
+        name: "阿里巴巴"
+      },{
+        id:3,
+        name: "腾讯"
+      }],
+      departmentList:[{
+        id:0,
+        name:"视频组"
+      },{
+        id:1,
+        name: "项目组"
+      },{
+        id:2,
+        name: "游戏组"
+      }],
+      positionList:[{
+        id:0,
+        name:"前端"
+      },{
+        id:1,
+        name:"后端"
+      }],
+      rules:{
+          name:[{required:true}],
+          describe:[{required:true}],
+          type:[{required:true}]
       }
-
     }
   },
   methods:{
+    beforeClose(done){
+      this.$confirm('您取消了修改密码，是否继续？', '提示', {
+        distinguishCancelAndClose: true,
+        confirmButtonText: '确认取消',
+        cancelButtonText: '放弃取消'
+      })
+          .then(() => {
+            this.$refs.form.resetFields(); // 重置表单
+            done()
+          })
+          .catch(()=>{
+            done(false)
+          })
+    },
     activation(level) {
         console.log(level)
 
@@ -115,7 +255,20 @@ export default {
 
     },
     editQuestion(){
-
+      this.editShow = true;
+      this.questionEditForm=this.questionInfoForm;
+      console.log(this.questionEditForm);
+    },
+    SelectCompany(value){
+      console.log(value);
+      if(value != ""){
+        this.isCompanySelected = true;
+      }
+      //想后端获取部门列表
+    },
+    submitEdit(){
+      //向后端传数据更改
+      console.log("传给后端 "+ this.questionEditForm)
     }
   }
 }
@@ -136,7 +289,7 @@ export default {
   height: 3.5vh;
   width: 4.5vw;
   border: 1px solid #6a99f1;
-  left: 2vw;
+  left: 4vw;
   top: -1.5vh;
   position: relative;
 }

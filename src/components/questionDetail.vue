@@ -3,8 +3,8 @@
   <div>
     <Head></Head>
   </div>
-  <questionLeft style="height:90vh; width:41.5vw; top:10vh; overflow: scroll; position: fixed"></questionLeft>
-  <questionRight style="height:90vh; width: 58vw;right: 0; top:10vh; position: fixed; overflow: scroll"></questionRight>
+    <questionLeft style="height:90vh; width:41.5vw; top:10vh; position: fixed; overflow: scroll"></questionLeft>
+    <questionRight style="height:90vh; width: 58vw;right: 0; top:10vh; position: fixed; overflow: scroll"></questionRight>
 </div>
 </template>
 

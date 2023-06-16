@@ -111,7 +111,7 @@ export default {
         name:"name1",
         type:"type3",
         father:""
-      },
+      }
       ]
     }
   },
@@ -137,7 +137,7 @@ export default {
     },
     submitEdit(){
       //向后端传数据更改
-      console.log("传给后端关键字 "+ this.editFormData)
+      console.log("传给后端 "+ this.editFormData)
     }
   }
 }

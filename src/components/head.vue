@@ -11,20 +11,138 @@
         <router-link to="/tag" active-class="active" class="pageTitle tagLib">
           标签库
         </router-link>
+        <el-button type="text" class="editPassword" @click="editPwd">
+          修改密码
+        </el-button>
+        <el-button type="text" class="exit" @click="logout">
+          退出登录
+        </el-button>
       </el-header>
     </el-container>
+    <el-dialog title="修改密码" v-model="editPwdShow" :before-close="beforeClose">
+      <el-form ref="form" :model="form" :rules="rules" label-width="10vw">
+        <el-form-item label="请输入旧密码" prop="oldPwd">
+          <el-input
+              type="password"
+              v-model="form.oldPwd"
+              placeholder="请输入旧密码"
+              autocomplete="off"
+          >
+          </el-input>
+        </el-form-item>
+        <el-form-item label="请输入新密码" prop="newPwd">
+        <el-input
+            type="password"
+            v-model="form.newPwd"
+            placeholder="请输入新密码"
+            autocomplete="off"
+        ></el-input>
+      </el-form-item>
+        <el-form-item label="请再次输入新密码" prop="newPwd2">
+          <el-input
+              type="password"
+              v-model="form.newPwd2"
+              placeholder="保证两次密码一样"
+              autocomplete="off"
+          ></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button
+              type="primary"
+              @click="submit(form)"
+              style="background-color:rgba(90,148,148,0.99);color:white;"
+          >
+            提交
+          </el-button>
+        </el-form-item>
+      </el-form>
+  </el-dialog>
   </div>
 </template>
 
 <script>
+import router from '@/router/index.js';
 export default {
   name: "head",
   data(){
-    return{
-      userInfo:{
-        username:"yss",
-        password:"123456"
+    var validateOldPwd = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请输入旧密码'));
       }
+      else {
+
+        //向后端发送数据，确认密码正确
+        callback();
+        }
+    };
+    var validateNewPwd = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请输入密码'));
+      }
+      else if(value.length > 18 || value.length < 6){
+        callback(new Error('密码长度应该为6-18位'));
+      }
+      else {
+        callback();
+      }
+    };
+    var checkPwd = (rule, value, callback) =>{
+      if (value === '') {
+        callback(new Error('请输入密码'));
+      }
+      else if(value !== this.form.newPwd){
+        callback(new Error('两次密码不一致'));
+      }
+      else {
+        callback();
+      }
+    }
+    return {
+      editPwdShow: false,
+      showOldPassword: false,
+      showNewPassword: false,
+      showNewPassword2: false,
+      form: {
+        oldPwd: "",
+        newPwd: "",
+        newPwd2: ""
+      },
+      userInfo: {
+        username: "yss",
+        password: "123456"
+      },
+      rules: {
+        oldPwd: [{required: true, validator: validateOldPwd, trigger: 'blur'}],
+        newPwd: [{required:true, validator:validateNewPwd, trigger:'blur'}],
+        newPwd2: [{required:true, validator:checkPwd, trigger:'blur'}]
+      }
+    }
+  },
+  methods:{
+    logout(){
+      localStorage.removeItem("token");
+      router.push('/');
+    },
+    editPwd(){
+      this.editPwdShow = true;
+    },
+    beforeClose(done){
+      this.$confirm('您取消了修改密码，是否继续？', '提示', {
+        distinguishCancelAndClose: true,
+        confirmButtonText: '确认取消',
+        cancelButtonText: '放弃取消'
+      })
+          .then(() => {
+            this.$refs.form.resetFields(); // 重置表单
+            done()
+          })
+          .catch(()=>{
+            done(false)
+          })
+    },
+    submit(){
+      console.log("提交用户token: "+localStorage.getItem('token') + '\n' + "提交表单form数据: "+ this.form)
+      this.editPwdShow = false;
     }
   }
 }
@@ -70,5 +188,26 @@ export default {
 }
 .tagLib{
   left:24vw;
+}
+.editPassword{
+  font-family: "华文黑体";
+  color: #6a99f1;
+  height: 4.2vh;
+  font-size: 2.5vh;
+  position: fixed;
+  top: 2vh;
+  text-decoration: none;
+  right:110px;
+}
+
+.exit{
+  right:20px;
+  font-family: "华文黑体";
+  color: #6a99f1;
+  height: 4.2vh;
+  font-size: 2.5vh;
+  position: fixed;
+  top: 2vh;
+  text-decoration: none;
 }
 </style>
