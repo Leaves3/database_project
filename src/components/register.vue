@@ -81,14 +81,21 @@ export default {
       this.$refs.form1.validate(valid => {
         if (valid) {
           //向后端发出请求
-          // this.$axios.post("/api/user/login?account="+this.loginFormData.username+"&password="+this.loginFormData.password).then((response) => {
-          //   if (response) {
-          //     //跳转页面，replace表示不可以回退页面，push则可以回退页面
-          //     this.$router.replace('/home')
-          //   }
-          // })
-          console.log("Register successfully")
-          router.push('/')
+          this.$axios.post("http://localhost:8080/addUser",
+              {
+                username:this.registerFormData.username,
+                password:this.registerFormData.password
+              }).then((response) => {
+                if (response.data.code===200) {
+                  //跳转页面，replace表示不可以回退页面，push则可以回退页面
+                  this.$message.success("注册成功！")
+                  console.log("Register successfully")
+                  router.push('/')
+                  }
+                else{
+                  console.log(response)
+                }
+              })
         } else {
           this.$message.error("请输入正确的用户名和密码！");
           return false;

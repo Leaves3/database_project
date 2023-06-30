@@ -43,16 +43,21 @@ export default {
       console.log("try to login")
       this.$refs.form1.validate(valid => {
         if (valid) {
-          //向后端发出请求
-          // this.$axios.post("/api/user/login?account="+this.loginFormData.username+"&password="+this.loginFormData.password).then((response) => {
-          //   if (response) {
-          //     //跳转页面，replace表示不可以回退页面，push则可以回退页面
-          //     this.$router.replace('/home')
-          //   }
-          // })
-          console.log("login successfully")
-          localStorage.setItem("token","11111")
-          router.push('/home')
+          this.$axios.post("http://localhost:8080/findUser",
+              {username:this.loginFormData.username,password:this.loginFormData.password}).then((response) => {
+                console.log(response)
+            if (response.data.code === 200) {
+              //跳转页面，replace表示不可以回退页面，push则可以回退页面
+              this.$message.success("登录成功！")
+              console.log("成功登录")
+              console.log(response)
+              localStorage.setItem("token",response.data.data)
+              router.push('/home')
+            }
+            else {
+              this.$message.error("登录失败！")
+            }
+          })
         }
         else{
           this.$message.error("请输入用户名和密码！");

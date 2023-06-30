@@ -19,7 +19,7 @@
         </el-button>
       </el-header>
     </el-container>
-    <el-dialog title="修改密码" v-model="editPwdShow" :before-close="beforeClose">
+    <el-dialog title="修改密码" v-model="editPwdShow">
       <el-form ref="form" :model="form" :rules="rules" label-width="10vw">
         <el-form-item label="请输入旧密码" prop="oldPwd">
           <el-input
@@ -107,10 +107,7 @@ export default {
         newPwd: "",
         newPwd2: ""
       },
-      userInfo: {
-        username: "yss",
-        password: "123456"
-      },
+      userId:localStorage.getItem('token'),
       rules: {
         oldPwd: [{required: true, validator: validateOldPwd, trigger: 'blur'}],
         newPwd: [{required:true, validator:validateNewPwd, trigger:'blur'}],
@@ -126,22 +123,26 @@ export default {
     editPwd(){
       this.editPwdShow = true;
     },
-    beforeClose(done){
-      this.$confirm('您取消了修改密码，是否继续？', '提示', {
-        distinguishCancelAndClose: true,
-        confirmButtonText: '确认取消',
-        cancelButtonText: '放弃取消'
-      })
-          .then(() => {
-            this.$refs.form.resetFields(); // 重置表单
-            done()
-          })
-          .catch(()=>{
-            done(false)
-          })
-    },
     submit(){
       console.log("提交用户token: "+localStorage.getItem('token') + '\n' + "提交表单form数据: "+ this.form)
+      this.$refs.form.validate(valid => {
+        if(valid){
+          this.$axios.post("http://localhost:8080/changePassword",{
+            newPassword:this.form.newPwd,
+            password:this.form.oldPwd,
+            uid:parseInt(this.userId)
+          }).then((response) => {
+            console.log(response.data)
+            if(response.data.code === 200){
+              this.$message.success("成功修改密码！")
+              this.editPwdShow = false
+            }
+            else{
+              this.$message.error("修改失败QAQ")
+            }
+          })
+        }
+      })
       this.editPwdShow = false;
     }
   }

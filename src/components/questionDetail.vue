@@ -3,9 +3,11 @@
   <div>
     <Head></Head>
   </div>
-    <questionLeft style="height:90vh; width:41.5vw; top:10vh; position: fixed; overflow: scroll"></questionLeft>
-    <questionRight style="height:90vh; width: 58vw;right: 0; top:10vh; position: fixed; overflow: scroll"></questionRight>
-</div>
+  <div>
+    <questionLeft style="height:90vh; width:41.5vw; top: 5vh; position: fixed;overflow: auto"></questionLeft>
+  </div>
+    <questionRight style="height:90vh; width: 58vw;right: 0; top:10vh; position: fixed; overflow: auto"></questionRight>
+  </div>
 </template>
 
 <script>
