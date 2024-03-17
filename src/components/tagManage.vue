@@ -263,13 +263,6 @@ export default {
     handleCurrentChange(val) {
       this.query.page = val
     },
-    handleSizeChange(val) {
-      this.query.page = 1
-      this.query.page_size = val
-    },
-    handleCurrentChange(val) {
-      this.query.page = val
-    },
     getAllKb(){
       console.log("传给后端关键字 "+this.kbContent+" 以及搜索方式 " + this.showTag)
       this.showData = []
